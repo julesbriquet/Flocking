@@ -68,7 +68,7 @@ public class BoidBehavior : MonoBehaviour {
 			}
 
 			float distanceFromBoid = Vector3.Distance ( transform.position, boid.transform.position );
-			if ( distanceFromBoid < m_DistanceToConsidereNearbyBoids ) 
+			if ( distanceFromBoid < m_DesiredSeparationFromBoids ) 
 			{
 				separationVector += boid.transform.position - this.transform.position;
 				neighborCount++;
