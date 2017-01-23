@@ -56,20 +56,94 @@ public class BoidBehavior : MonoBehaviour {
 
 	private Vector3 GetSeparationFromBoidsVector(List<GameObject> _boidList)
 	{
-		// TODO
-		return Vector3.zero;
+		Vector3 separationVector = Vector3.zero;
+		uint neighborCount = 0;
+
+		foreach ( GameObject boid in _boidList )
+		{
+			// Avoid boid to take himself into account
+			if ( this.gameObject == boid )
+			{
+				continue;
+			}
+
+			float distanceFromBoid = Vector3.Distance ( transform.position, boid.transform.position );
+			if ( distanceFromBoid < m_DistanceToConsidereNearbyBoids ) 
+			{
+				separationVector += boid.transform.position - this.transform.position;
+				neighborCount++;
+			}
+		}
+
+		if ( neighborCount != 0 )
+		{
+			separationVector /= neighborCount;
+			separationVector *= -1;
+			separationVector.Normalize ();
+		}
+
+		return separationVector;
 	}
 
 	private Vector3 GetAlignmentFromBoidsVector(List<GameObject> _boidList)
 	{
-		// TODO
-		return Vector3.zero;
+		Vector3 alignmentVector = Vector3.zero;
+		uint neighborCount = 0;
+
+		foreach ( GameObject boid in _boidList )
+		{
+			// Avoid boid to take himself into account
+			if ( this.gameObject == boid )
+			{
+				continue;
+			}
+				
+			float distanceFromBoid = Vector3.Distance ( transform.position, boid.transform.position );
+			if ( distanceFromBoid < m_DistanceToConsidereNearbyBoids ) 
+			{
+				alignmentVector += boid.transform.forward;
+				neighborCount++;
+			}
+		}
+
+		if ( neighborCount != 0 )
+		{
+			alignmentVector /= neighborCount;
+			alignmentVector.Normalize ();
+		}
+
+		return alignmentVector;
 	}
 
 	private Vector3 GetCohesionFromBoidsVector(List<GameObject> _boidList)
 	{
-		// TODO
-		return Vector3.zero;
+		Vector3 cohesionVector = Vector3.zero;
+		uint neighborCount = 0;
+
+		foreach ( GameObject boid in _boidList )
+		{
+			// Avoid boid to take himself into account
+			if ( this.gameObject == boid )
+			{
+				continue;
+			}
+
+			float distanceFromBoid = Vector3.Distance ( transform.position, boid.transform.position );
+			if ( distanceFromBoid < m_DistanceToConsidereNearbyBoids ) 
+			{
+				cohesionVector += boid.transform.position;
+				neighborCount++;
+			}
+		}
+
+		if ( neighborCount != 0 )
+		{
+			cohesionVector /= neighborCount;
+			cohesionVector = cohesionVector - this.transform.position;
+			cohesionVector.Normalize ();
+		}
+
+		return cohesionVector;
 	}
 
 	public BoidSpawner FlightArea
