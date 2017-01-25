@@ -5,6 +5,7 @@ using UnityEngine;
 public class BoidMovement : MonoBehaviour {
 
 	public float 			m_BoidSpeed = 5.0f;
+	public float			m_BoidSpinSpeed = 3.0f;
 
 	public bool 			m_DebugDrawBoidMouvementDebug = false;
 
@@ -39,7 +40,7 @@ public class BoidMovement : MonoBehaviour {
 	private void AdjustRotation ()
 	{
 		Quaternion targetRotation = Quaternion.LookRotation (m_WantedDirection);
-		float factor = Time.deltaTime * m_BoidSpeed;
+		float factor = Time.deltaTime * m_BoidSpinSpeed;
 
 		if (targetRotation != transform.rotation)
 		{

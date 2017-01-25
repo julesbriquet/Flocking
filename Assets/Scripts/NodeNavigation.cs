@@ -75,7 +75,6 @@ public class NodeNavigation : MonoBehaviour {
 
 	void OnDrawGizmos()
 	{
-		Gizmos.color = Color.green;
 		SphereCollider sphereArea = this.GetComponent<SphereCollider> ();
 
 		if (sphereArea == null)
@@ -84,7 +83,11 @@ public class NodeNavigation : MonoBehaviour {
 			return;
 		}
 
+		Gizmos.color = Color.green;
 		Gizmos.DrawWireSphere (transform.position, sphereArea.radius);
+
+		Gizmos.color = Color.blue;
+		Gizmos.DrawWireSphere (m_TargetNavigationDestination, 0.5f);
 
 		foreach (NodeNavigation navigationNode in m_NextNavigationNodeList)
 		{

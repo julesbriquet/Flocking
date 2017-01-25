@@ -4,13 +4,15 @@ using UnityEngine;
 
 public class BoidNavigation : MonoBehaviour {
 
+	public float 			m_MinDistanceToDestinationRadius = 1.0f;
+
 	public bool 			m_DebugDrawBoidNavigationDebug = false;
 
 	private NodeNavigation	m_PreviousNavigationArea;
 	private NodeNavigation 	m_CurrentNavigationArea;
 
 	private Vector3 		m_TargetNavigationDestination;
-	private float 			m_MinDistanceToDestinationRadius = 1.0f;
+
 
 	private Vector3 		m_TargetNavigationDirection;
 
@@ -25,6 +27,8 @@ public class BoidNavigation : MonoBehaviour {
 		}
 		
 		SetTargetNavigationDestination(m_CurrentNavigationArea.TargetNavigationDestination);
+		m_TargetNavigationDirection = m_TargetNavigationDestination - transform.position;
+		m_TargetNavigationDirection.Normalize ();
 	}
 
 	
@@ -53,10 +57,11 @@ public class BoidNavigation : MonoBehaviour {
 			{
 				m_PreviousNavigationArea = m_CurrentNavigationArea;
 				m_CurrentNavigationArea = nextNavigationNode;
-				SetTargetNavigationDestination(m_CurrentNavigationArea.TargetNavigationDestination);
 				m_PreviousNavigationArea.UnregisterObjectToNavigationNode (this.gameObject);
 				m_CurrentNavigationArea.RegisterObjectToNavigationNode (this.gameObject);
 			}
+
+			SetTargetNavigationDestination(m_CurrentNavigationArea.TargetNavigationDestination);
 		}		
 	}
 
