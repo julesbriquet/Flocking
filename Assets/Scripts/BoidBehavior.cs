@@ -19,14 +19,16 @@ public class BoidBehavior : MonoBehaviour {
 	private Vector3 		m_SteeringVector;
 
 
-	private BoidSpawner 	m_FlightArea;
+	private BoidNavigation 	m_NavigationComponent;
 
 	// Use this for initialization
 	void Start ()
 	{
-		if (m_FlightArea == null)
+		m_NavigationComponent = this.GetComponent<BoidNavigation> ();
+
+		if (m_NavigationComponent == null)
 		{
-			Debug.LogWarning ("BoidMovement::Start, Flight Area shoudn't be null");
+			Debug.LogWarning ("BoidBehavior::Start, Navigation Component shoudn't be null");
 			return;
 		}
 	}
@@ -35,16 +37,16 @@ public class BoidBehavior : MonoBehaviour {
 	void Update ()
 	{
 
-		if (m_FlightArea == null)
+		if (m_NavigationComponent == null)
 		{
 			return;
 		}
 
-		List<GameObject> boidList = m_FlightArea.GetSpawnedEntityList ();
+		List<GameObject> boidListFromCurrentNode = m_NavigationComponent.CurrentNavigationArea.GetEntityList();
 
-		m_SeparationVector = GetSeparationFromBoidsVector (boidList);
-		m_AligmentVector = GetAlignmentFromBoidsVector (boidList);
-		m_CohesionVector = GetCohesionFromBoidsVector (boidList);
+		m_SeparationVector = GetSeparationFromBoidsVector (boidListFromCurrentNode);
+		m_AligmentVector = GetAlignmentFromBoidsVector (boidListFromCurrentNode);
+		m_CohesionVector = GetCohesionFromBoidsVector (boidListFromCurrentNode);
 
 		m_SeparationVector *= m_SeparationCoefficient;
 		m_AligmentVector *= m_AlignmentCoefficient;
@@ -144,12 +146,6 @@ public class BoidBehavior : MonoBehaviour {
 		}
 
 		return cohesionVector;
-	}
-
-	public BoidSpawner FlightArea
-	{
-		get { return m_FlightArea; }
-		set { m_FlightArea = value; }
 	}
 
 	public Vector3 SteeringVector
