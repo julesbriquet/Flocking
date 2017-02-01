@@ -4,19 +4,24 @@ using UnityEngine;
 
 public class NodeNavigation : MonoBehaviour {
 
-	public List<NodeNavigation>		m_NextNavigationNodeList;
+	public List<NodeNavigation>		NextNavigationNodeList;
 	
-	private List<GameObject> 		m_ObjectListNavigatingInNode = new List<GameObject>();
-	private SphereCollider 			m_SphereArea;
-	private Vector3 				m_TargetNavigationDestination;
+	public List<GameObject> 		NavigatingGameObjectInNodeList { get; private set; }
+	public SphereCollider 			SphereArea { get; set; }
+	public Vector3 					TargetNavigationDestination { get; set; }
 
+	// Called before start
+	void Awake()
+	{
+		NavigatingGameObjectInNodeList = new List<GameObject>();
+	}
 
 	// Use this for initialization
 	void Start () 
 	{
-		m_SphereArea = this.GetComponent<SphereCollider> ();
+		SphereArea = this.GetComponent<SphereCollider>();
 		
-		this.GenerateTargetNavigationDestination ();
+		this.GenerateTargetNavigationDestination();
 	}
 	
 	// Update is called once per frame
@@ -27,71 +32,59 @@ public class NodeNavigation : MonoBehaviour {
 	
 	public void RegisterObjectToNavigationNode(GameObject _navigatingObject)
 	{
-		m_ObjectListNavigatingInNode.Add(_navigatingObject);
+		NavigatingGameObjectInNodeList.Add(_navigatingObject);
 	}
 	
 	public bool UnregisterObjectToNavigationNode(GameObject _navigatingObject)
 	{
-		return m_ObjectListNavigatingInNode.Remove(_navigatingObject);
+		return NavigatingGameObjectInNodeList.Remove(_navigatingObject);
 	}
 	
 	public void GenerateTargetNavigationDestination()
 	{
-		m_TargetNavigationDestination = GetRandomPointInsideNavigationArea ();
+		TargetNavigationDestination = GetRandomPointInsideNavigationArea();
 	}
 	
 	private Vector3 GetRandomPointInsideNavigationArea()
 	{
-		return Random.insideUnitSphere * Random.Range(0, m_SphereArea.radius) + m_SphereArea.transform.position;
+		return Random.insideUnitSphere * Random.Range(0, SphereArea.radius) + SphereArea.transform.position;
 	}
 
 	public NodeNavigation GetRandomNextNavigationNode()
 	{
-		if (m_NextNavigationNodeList.Count == 0)
+		if (NextNavigationNodeList.Count == 0)
 		{
 			return this;
 		}
 		
-		int randomIndex = Random.Range(0, m_NextNavigationNodeList.Count);
-		return m_NextNavigationNodeList[randomIndex];
+		int randomIndex = Random.Range(0, NextNavigationNodeList.Count);
+		return NextNavigationNodeList[randomIndex];
 	}
 
-	public List<GameObject> GetEntityList()
-	{
-		return m_ObjectListNavigatingInNode;
-	}
-
-	public SphereCollider SphereArea
-	{
-		get { return m_SphereArea; }
-		set { m_SphereArea = value; }
-	}
-
-	public Vector3 TargetNavigationDestination
-	{
-		get { return m_TargetNavigationDestination; }
-		set { m_TargetNavigationDestination = value; }
-	}
+	#region Debug
 
 	void OnDrawGizmos()
 	{
-		SphereCollider sphereArea = this.GetComponent<SphereCollider> ();
+		SphereCollider sphereArea = this.GetComponent<SphereCollider>();
 
 		if (sphereArea == null)
 		{
-			Debug.LogWarning ("Sphere Area should be attached to BoidSpawner");
+			Debug.LogWarning("Sphere Area should be attached to BoidSpawner");
 			return;
 		}
 
 		Gizmos.color = Color.green;
-		Gizmos.DrawWireSphere (transform.position, sphereArea.radius);
+		Gizmos.DrawWireSphere(transform.position, sphereArea.radius);
 
 		Gizmos.color = Color.blue;
-		Gizmos.DrawWireSphere (m_TargetNavigationDestination, 0.5f);
+		Gizmos.DrawWireSphere(TargetNavigationDestination, 0.5f);
 
-		foreach (NodeNavigation navigationNode in m_NextNavigationNodeList)
+		foreach (NodeNavigation navigationNode in NextNavigationNodeList)
 		{
-			Gizmos.DrawLine (transform.position, navigationNode.transform.position);
+			Gizmos.DrawLine(transform.position, navigationNode.transform.position);
 		}
 	}
+
+	#endregion
+
 }

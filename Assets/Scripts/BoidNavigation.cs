@@ -4,120 +4,77 @@ using UnityEngine;
 
 public class BoidNavigation : MonoBehaviour {
 
-	public float 			m_MinDistanceToDestinationRadius = 1.0f;
+	public float 			MinDistanceToDestinationRadius = 1.0f;
 
-	public bool 			m_DebugDrawBoidNavigationDebug = false;
+	public bool 			DebugDrawBoidNavigationDebug = false;
 
-	private NodeNavigation	m_PreviousNavigationArea;
-	private NodeNavigation 	m_CurrentNavigationArea;
+	public NodeNavigation	PreviousNavigationArea { get; set; }
+	public NodeNavigation 	CurrentNavigationArea { get; set; }
 
-	private Vector3 		m_TargetNavigationDestination;
-
-
-	private Vector3 		m_TargetNavigationDirection;
+	public Vector3 			TargetNavigationDirection { get; set; }
+	private Vector3 		TargetNavigationDestination;
 
 
 	// Use this for initialization
 	void Start ()
 	{
-		if (m_CurrentNavigationArea == null)
+		if (CurrentNavigationArea == null)
 		{
-			Debug.LogWarning ("BoidNavigation::Start, Navigation Area shoudn't be null");
+			Debug.LogWarning("BoidNavigation::Start, Navigation Area shoudn't be null");
 			return;
 		}
 		
-		SetTargetNavigationDestination(m_CurrentNavigationArea.TargetNavigationDestination);
-		m_TargetNavigationDirection = m_TargetNavigationDestination - transform.position;
-		m_TargetNavigationDirection.Normalize ();
+		TargetNavigationDestination = CurrentNavigationArea.TargetNavigationDestination;
+		TargetNavigationDirection = TargetNavigationDestination - transform.position;
+		TargetNavigationDirection.Normalize();
 	}
 
 	
 	// Update is called once per frame
 	void Update ()
 	{
-		CheckTargetNavigationDestination ();
+		CheckTargetNavigationDestination();
 
-		m_TargetNavigationDirection = m_TargetNavigationDestination - transform.position;
-		m_TargetNavigationDirection.Normalize ();
+		TargetNavigationDirection = TargetNavigationDestination - transform.position;
+		TargetNavigationDirection.Normalize();
 	}
 
 	private void CheckTargetNavigationDestination()
 	{
-		Vector3 vDistanceToDestination = m_TargetNavigationDestination - transform.position;
+		Vector3 vDistanceToDestination = TargetNavigationDestination - transform.position;
 
-		if (vDistanceToDestination.sqrMagnitude <= m_MinDistanceToDestinationRadius * m_MinDistanceToDestinationRadius)
+		if (vDistanceToDestination.sqrMagnitude <= MinDistanceToDestinationRadius * MinDistanceToDestinationRadius)
 		{
-			if (m_CurrentNavigationArea.TargetNavigationDestination == m_TargetNavigationDestination)
+			if (CurrentNavigationArea.TargetNavigationDestination == TargetNavigationDestination)
 			{
-				m_CurrentNavigationArea.GenerateTargetNavigationDestination ();
+				CurrentNavigationArea.GenerateTargetNavigationDestination();
 			}
 			
-			NodeNavigation nextNavigationNode = m_CurrentNavigationArea.GetRandomNextNavigationNode();
-			if (nextNavigationNode != m_CurrentNavigationArea)
+			NodeNavigation nextNavigationNode = CurrentNavigationArea.GetRandomNextNavigationNode();
+			if (nextNavigationNode != CurrentNavigationArea)
 			{
-				m_PreviousNavigationArea = m_CurrentNavigationArea;
-				m_CurrentNavigationArea = nextNavigationNode;
-				m_PreviousNavigationArea.UnregisterObjectToNavigationNode (this.gameObject);
-				m_CurrentNavigationArea.RegisterObjectToNavigationNode (this.gameObject);
+				PreviousNavigationArea = CurrentNavigationArea;
+				CurrentNavigationArea = nextNavigationNode;
+				PreviousNavigationArea.UnregisterObjectToNavigationNode(this.gameObject);
+				CurrentNavigationArea.RegisterObjectToNavigationNode(this.gameObject);
 			}
 
-			SetTargetNavigationDestination(m_CurrentNavigationArea.TargetNavigationDestination);
+			TargetNavigationDestination = CurrentNavigationArea.TargetNavigationDestination;
 		}		
 	}
+		
+	#region Debug
 
-	//
-	//
-	// GETTER / SETTER
-	//
-	//
-	private void SetTargetNavigationDestination(Vector3 _TargetNavigationDestination)
-	{
-		m_TargetNavigationDestination = _TargetNavigationDestination;
-	}
-
-	public Vector3 TargetNavigationDirection
-	{
-		get { return m_TargetNavigationDirection; }
-		set { m_TargetNavigationDirection = value; }
-	}	
-
-	public NodeNavigation PreviousNavigationArea
-	{
-		get { return m_PreviousNavigationArea; }
-		set { m_PreviousNavigationArea = value; }
-	}
-
-	public NodeNavigation CurrentNavigationArea
-	{
-		get { return m_CurrentNavigationArea; }
-		set { m_CurrentNavigationArea = value; }
-	}
-
-	public List<GameObject> GetBoidListFromNavigationNode()
-	{
-		List<GameObject> BoidListFromNavigationNode = new List<GameObject>();
-
-		if (m_CurrentNavigationArea != null)
-		{
-			return m_CurrentNavigationArea.GetEntityList ();
-		}
-
-		return BoidListFromNavigationNode;
-	}
-	
-	//
-	//
-	// DEBUG PART
-	//
-	//
 	void OnDrawGizmos()
 	{
-		if (!m_DebugDrawBoidNavigationDebug)
+		if (!DebugDrawBoidNavigationDebug)
 		{
 			return;
 		}
 		
 		Gizmos.color = Color.blue;
-		Gizmos.DrawWireSphere (m_TargetNavigationDestination, m_MinDistanceToDestinationRadius);
+		Gizmos.DrawWireSphere(TargetNavigationDestination, MinDistanceToDestinationRadius);
 	}
+
+	#endregion
 }

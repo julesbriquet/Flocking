@@ -4,18 +4,18 @@ using UnityEngine;
 
 public class NodeSpawner : MonoBehaviour {
 
-	public int 					m_NumberOfBoidToSpawn = 10;
-	public GameObject 			m_GameObjectToSpawn;
+	public int 					NumberOfBoidToSpawn = 10;
+	public GameObject 			GameObjectToSpawn;
 
 
 	// Use this for initialization
 	void Start () {
 
-		SphereCollider SpawnArea = this.GetComponent<SphereCollider> ();
+		SphereCollider SpawnArea = this.GetComponent<SphereCollider>();
 
-		for ( int i = 0; i < m_NumberOfBoidToSpawn; ++i ) 
+		for ( int i = 0; i < NumberOfBoidToSpawn; ++i ) 
 		{
-			GenerateBoid (SpawnArea);
+			GenerateBoid(SpawnArea);
 		}
 	}
 	
@@ -28,38 +28,42 @@ public class NodeSpawner : MonoBehaviour {
 	{
 		if (_SpawnArea == null)
 		{
-			Debug.LogWarning ("Sphere Area should be attached to BoidSpawner");
+			Debug.LogWarning("Sphere Area should be attached to BoidSpawner");
 			return;
 		}
 
-		float randXPos = Random.Range (this.transform.position.x - (_SpawnArea.radius / 2), this.transform.position.x + (_SpawnArea.radius / 2));
-		float randYPos = Random.Range (this.transform.position.y - (_SpawnArea.radius / 2), this.transform.position.y + (_SpawnArea.radius / 2));
-		float randZPos = Random.Range (this.transform.position.z - (_SpawnArea.radius / 2), this.transform.position.z + (_SpawnArea.radius / 2));
+		float randXPos = Random.Range(this.transform.position.x - (_SpawnArea.radius / 2), this.transform.position.x + (_SpawnArea.radius / 2));
+		float randYPos = Random.Range(this.transform.position.y - (_SpawnArea.radius / 2), this.transform.position.y + (_SpawnArea.radius / 2));
+		float randZPos = Random.Range(this.transform.position.z - (_SpawnArea.radius / 2), this.transform.position.z + (_SpawnArea.radius / 2));
 
-		Vector3 randPosition = new Vector3 (randXPos, randYPos, randZPos);
+		Vector3 randPosition = new Vector3(randXPos, randYPos, randZPos);
 
 		Quaternion randRotation = Quaternion.Euler(Random.Range(-80, 80), Random.Range(0, 360), 0);
 
-		GameObject boidGameObject = (GameObject)MonoBehaviour.Instantiate (m_GameObjectToSpawn, randPosition, randRotation);
+		GameObject boidGameObject = (GameObject)MonoBehaviour.Instantiate(GameObjectToSpawn, randPosition, randRotation);
 
 
 		// Notify NavigationNode to add this GameObject to the list
-		NodeNavigation navigationNode = this.GetComponent<NodeNavigation> ();
+		NodeNavigation navigationNode = this.GetComponent<NodeNavigation>();
 		if (navigationNode != null)
 		{
 			navigationNode.RegisterObjectToNavigationNode(boidGameObject);
 
-			BoidNavigation boidNavigation = boidGameObject.GetComponent<BoidNavigation> ();
+			BoidNavigation boidNavigation = boidGameObject.GetComponent<BoidNavigation>();
 			if (boidNavigation != null)
 			{
 				boidNavigation.CurrentNavigationArea = navigationNode;
 			}
 		}
 	}
-	
+
+	#region Debug
+
 	void OnDrawGizmos()
 	{
 		Gizmos.color = Color.blue;
-		Gizmos.DrawSphere (transform.position, 0.2f);
+		Gizmos.DrawSphere(transform.position, 0.2f);
 	}
+
+	#endregion
 }

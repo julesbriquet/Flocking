@@ -4,31 +4,32 @@ using UnityEngine;
 
 public class BoidBehavior : MonoBehaviour {
 
-	public bool 			m_DebugDrawBoidBehavior = false;
+	public bool 			DebugDrawBoidBehavior = false;
 
-	public float 			m_DistanceToConsidereNearbyBoids = 1.0f;
-	public float 			m_DesiredSeparationFromBoids = 0.5f;
+	public float 			DistanceToConsidereNearbyBoids = 1.0f;
+	public float 			DesiredSeparationFromBoids = 0.5f;
 
-	public float 			m_AlignmentCoefficient = 1.0f;
-	public float 			m_CohesionCoefficient = 1.0f;
-	public float 			m_SeparationCoefficient = 1.0f;
+	public float 			AlignmentCoefficient = 1.0f;
+	public float 			CohesionCoefficient = 1.0f;
+	public float 			SeparationCoefficient = 1.0f;
 
-	private Vector3 		m_AligmentVector;
-	private Vector3 		m_CohesionVector;
-	private Vector3 		m_SeparationVector;
-	private Vector3 		m_SteeringVector;
+	public Vector3 			SteeringVector { get; set; }
+
+	private Vector3 		AligmentVector;
+	private Vector3 		CohesionVector;
+	private Vector3 		SeparationVector;
 
 
-	private BoidNavigation 	m_NavigationComponent;
+	private BoidNavigation 	NavigationComponent;
 
 	// Use this for initialization
 	void Start ()
 	{
-		m_NavigationComponent = this.GetComponent<BoidNavigation> ();
+		NavigationComponent = this.GetComponent<BoidNavigation>();
 
-		if (m_NavigationComponent == null)
+		if (NavigationComponent == null)
 		{
-			Debug.LogWarning ("BoidBehavior::Start, Navigation Component shoudn't be null");
+			Debug.LogWarning("BoidBehavior::Start, Navigation Component shoudn't be null");
 			return;
 		}
 	}
@@ -37,23 +38,23 @@ public class BoidBehavior : MonoBehaviour {
 	void Update ()
 	{
 
-		if (m_NavigationComponent == null)
+		if (NavigationComponent == null)
 		{
 			return;
 		}
 
-		List<GameObject> boidListFromCurrentNode = m_NavigationComponent.CurrentNavigationArea.GetEntityList();
+		List<GameObject> boidListFromCurrentNode = NavigationComponent.CurrentNavigationArea.NavigatingGameObjectInNodeList;
 
-		m_SeparationVector = GetSeparationFromBoidsVector (boidListFromCurrentNode);
-		m_AligmentVector = GetAlignmentFromBoidsVector (boidListFromCurrentNode);
-		m_CohesionVector = GetCohesionFromBoidsVector (boidListFromCurrentNode);
+		SeparationVector = GetSeparationFromBoidsVector(boidListFromCurrentNode);
+		AligmentVector = GetAlignmentFromBoidsVector(boidListFromCurrentNode);
+		CohesionVector = GetCohesionFromBoidsVector(boidListFromCurrentNode);
 
-		m_SeparationVector *= m_SeparationCoefficient;
-		m_AligmentVector *= m_AlignmentCoefficient;
-		m_CohesionVector *= m_CohesionCoefficient;
+		SeparationVector *= SeparationCoefficient;
+		AligmentVector *= AlignmentCoefficient;
+		CohesionVector *= CohesionCoefficient;
 
-		m_SteeringVector = m_SeparationVector + m_AligmentVector + m_CohesionVector;
-		m_SteeringVector.Normalize ();
+		SteeringVector = SeparationVector + AligmentVector + CohesionVector;
+		SteeringVector.Normalize();
 	}
 
 	private Vector3 GetSeparationFromBoidsVector(List<GameObject> _boidList)
@@ -69,8 +70,8 @@ public class BoidBehavior : MonoBehaviour {
 				continue;
 			}
 
-			float distanceFromBoid = Vector3.Distance ( transform.position, boid.transform.position );
-			if ( distanceFromBoid < m_DesiredSeparationFromBoids ) 
+			float distanceFromBoid = Vector3.Distance( transform.position, boid.transform.position );
+			if ( distanceFromBoid < DesiredSeparationFromBoids ) 
 			{
 				separationVector += boid.transform.position - this.transform.position;
 				neighborCount++;
@@ -81,7 +82,7 @@ public class BoidBehavior : MonoBehaviour {
 		{
 			separationVector /= neighborCount;
 			separationVector *= -1;
-			separationVector.Normalize ();
+			separationVector.Normalize();
 		}
 
 		return separationVector;
@@ -100,8 +101,8 @@ public class BoidBehavior : MonoBehaviour {
 				continue;
 			}
 				
-			float distanceFromBoid = Vector3.Distance ( transform.position, boid.transform.position );
-			if ( distanceFromBoid < m_DistanceToConsidereNearbyBoids ) 
+			float distanceFromBoid = Vector3.Distance( transform.position, boid.transform.position );
+			if ( distanceFromBoid < DistanceToConsidereNearbyBoids ) 
 			{
 				alignmentVector += boid.transform.forward;
 				neighborCount++;
@@ -111,7 +112,7 @@ public class BoidBehavior : MonoBehaviour {
 		if ( neighborCount != 0 )
 		{
 			alignmentVector /= neighborCount;
-			alignmentVector.Normalize ();
+			alignmentVector.Normalize();
 		}
 
 		return alignmentVector;
@@ -130,8 +131,8 @@ public class BoidBehavior : MonoBehaviour {
 				continue;
 			}
 
-			float distanceFromBoid = Vector3.Distance ( transform.position, boid.transform.position );
-			if ( distanceFromBoid < m_DistanceToConsidereNearbyBoids ) 
+			float distanceFromBoid = Vector3.Distance( transform.position, boid.transform.position );
+			if ( distanceFromBoid < DistanceToConsidereNearbyBoids ) 
 			{
 				cohesionVector += boid.transform.position;
 				neighborCount++;
@@ -142,42 +143,41 @@ public class BoidBehavior : MonoBehaviour {
 		{
 			cohesionVector /= neighborCount;
 			cohesionVector = cohesionVector - this.transform.position;
-			cohesionVector.Normalize ();
+			cohesionVector.Normalize();
 		}
 
 		return cohesionVector;
 	}
 
-	public Vector3 SteeringVector
-	{
-		get { return m_SteeringVector; }
-		set { m_SteeringVector = value; }
-	}
+
+	#region Debug
 
 	void OnDrawGizmosSelected()
 	{
-		if (!m_DebugDrawBoidBehavior)
+		if (!DebugDrawBoidBehavior)
 		{
 			return;
 		}
 
 		Gizmos.color = Color.blue;
-		Gizmos.DrawLine (transform.position, transform.position + m_AligmentVector);
+		Gizmos.DrawLine(transform.position, transform.position + AligmentVector);
 
 		Gizmos.color = Color.green;
-		Gizmos.DrawLine (transform.position, transform.position + m_CohesionVector);
+		Gizmos.DrawLine(transform.position, transform.position + CohesionVector);
 
 		Gizmos.color = Color.cyan;
-		Gizmos.DrawLine (transform.position, transform.position + m_SeparationVector);
+		Gizmos.DrawLine(transform.position, transform.position + SeparationVector);
 
 		Gizmos.color = Color.magenta;
-		Gizmos.DrawLine (transform.position, transform.position + m_SteeringVector);
+		Gizmos.DrawLine(transform.position, transform.position + SteeringVector);
 
 		Gizmos.color = Color.green;
-		Gizmos.DrawWireSphere (transform.position, m_DistanceToConsidereNearbyBoids);
+		Gizmos.DrawWireSphere(transform.position, DistanceToConsidereNearbyBoids);
 
 		Gizmos.color = Color.red;
-		Gizmos.DrawWireSphere (transform.position, m_DesiredSeparationFromBoids);
+		Gizmos.DrawWireSphere(transform.position, DesiredSeparationFromBoids);
 
 	}
+
+	#endregion
 }
